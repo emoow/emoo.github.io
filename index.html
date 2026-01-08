@@ -1,10 +1,319 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>emoooooo</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emoo - Personal Website</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'UnifrakturMaguntia', cursive;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Dark liquid glass background */
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      z-index: -2;
+    }
+
+    /* Animated liquid glass effect */
+    .liquid-glass {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(100, 50, 200, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(200, 50, 100, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(50, 150, 200, 0.1) 0%, transparent 50%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      animation: liquidMove 20s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes liquidMove {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.8;
+      }
+      33% {
+        transform: translate(30px, -30px) scale(1.1);
+        opacity: 0.9;
+      }
+      66% {
+        transform: translate(-20px, 20px) scale(0.9);
+        opacity: 0.7;
+      }
+    }
+
+    /* Landing page */
+    .landing-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .question-container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 60px 40px;
+      box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.37),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .question {
+      font-size: 3.5rem;
+      color: #ffffff;
+      text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.5),
+        0 0 20px rgba(150, 100, 255, 0.5),
+        0 0 30px rgba(150, 100, 255, 0.3);
+      margin-bottom: 40px;
+      letter-spacing: 2px;
+      line-height: 1.2;
+    }
+
+    .input-container {
+      position: relative;
+      margin-top: 30px;
+    }
+
+    .answer-input {
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 15px 20px;
+      font-size: 1.5rem;
+      color: #ffffff;
+      font-family: 'UnifrakturMaguntia', cursive;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      outline: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+
+    .answer-input:focus {
+      border-color: rgba(150, 100, 255, 0.6);
+      box-shadow: 
+        0 0 20px rgba(150, 100, 255, 0.4),
+        inset 0 0 20px rgba(150, 100, 255, 0.1);
+    }
+
+    .answer-input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 1.2rem;
+    }
+
+    .hint {
+      margin-top: 20px;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 1rem;
+      font-style: italic;
+    }
+
+    /* Info page */
+    .info-page {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .info-page.active {
+      display: flex;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .info-container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 60px 40px;
+      box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.37),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      max-width: 700px;
+      width: 100%;
+    }
+
+    .info-title {
+      font-size: 3rem;
+      color: #ffffff;
+      text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.5),
+        0 0 20px rgba(150, 100, 255, 0.5);
+      margin-bottom: 40px;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    .info-content {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.3rem;
+      line-height: 1.8;
+      text-align: left;
+    }
+
+    .info-item {
+      margin-bottom: 25px;
+      padding-left: 20px;
+      border-left: 3px solid rgba(150, 100, 255, 0.5);
+    }
+
+    .info-label {
+      color: rgba(150, 100, 255, 0.8);
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-shadow: 0 0 10px rgba(150, 100, 255, 0.3);
+    }
+
+    .info-value {
+      color: #ffffff;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .question {
+        font-size: 2.5rem;
+      }
+
+      .info-title {
+        font-size: 2rem;
+      }
+
+      .info-content {
+        font-size: 1.1rem;
+      }
+
+      .question-container,
+      .info-container {
+        padding: 40px 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>emoo wang</h1>
-  <p>Me</p>
+  <div class="background"></div>
+  <div class="liquid-glass"></div>
+
+  <!-- Landing Page -->
+  <div class="landing-page" id="landingPage">
+    <div class="question-container">
+      <div class="question">Who is the funniest girl in the world?</div>
+      <div class="input-container">
+        <input 
+          type="text" 
+          class="answer-input" 
+          id="answerInput" 
+          placeholder="Type your answer..."
+          autocomplete="off"
+        />
+      </div>
+      <div class="hint">Enter the answer to continue...</div>
+    </div>
+  </div>
+
+  <!-- Info Page -->
+  <div class="info-page" id="infoPage">
+    <div class="info-container">
+      <div class="info-title">About Emoo</div>
+      <div class="info-content">
+        <div class="info-item">
+          <div class="info-label">Name</div>
+          <div class="info-value">Emoo Wang</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Description</div>
+          <div class="info-value">The funniest girl in the world</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Location</div>
+          <div class="info-value">Available on GitHub</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Interests</div>
+          <div class="info-value">Coding, Design, Making people laugh</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const answerInput = document.getElementById('answerInput');
+    const landingPage = document.getElementById('landingPage');
+    const infoPage = document.getElementById('infoPage');
+
+    answerInput.addEventListener('input', function(e) {
+      const userAnswer = e.target.value.trim();
+      
+      // Check if answer is "Emoo" (case-insensitive)
+      if (userAnswer.toLowerCase() === 'emoo') {
+        // Hide landing page and show info page
+        landingPage.style.display = 'none';
+        infoPage.classList.add('active');
+        
+        // Clear the input
+        answerInput.value = '';
+      }
+    });
+
+    // Prevent form submission on Enter
+    answerInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+      }
+    });
+  </script>
 </body>
 </html>
