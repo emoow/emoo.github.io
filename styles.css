@@ -176,12 +176,12 @@ body {
 }
 
 .info-logo {
-    max-width: 180px;
+    max-width: 240px;
     height: auto;
     border-radius: 20px;
     box-shadow: 0 4px 16px rgba(162,89,230,0.25);
     /* background: #fff; */
-    padding: 8px;
+    padding: 2px;
 }
 
 .info-container {
@@ -202,6 +202,13 @@ body {
     width: 100%;
 }
 
+.info-right-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
 .info-content {
     flex: 1;
     color: rgba(255, 255, 255, 0.9);
@@ -217,7 +224,7 @@ body {
     align-items: center;
     justify-content: center;
     min-width: 0;
-    padding-left: 20px;
+    /* padding-left: 20px; */
 }
 
 .info-page, .info-content, .info-title, .info-item, .info-label, .info-value {

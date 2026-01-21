@@ -30,33 +30,31 @@
     </div>
     <div class="info-container">
       <div class="info-content">
-        <div class="info-title">About Emoo</div>
+        <!-- <div class="info-title">About Emoo</div> -->
         <div class="info-item">
           <div class="info-label">Name</div>
-          <div class="info-value">Emoo Wang</div>
+          <div class="info-value">Baiyi Wang (Emoo)</div>
         </div>
         <div class="info-item">
           <div class="info-label">Description</div>
-          <div class="info-value">Not fully idealistic. Self identified developer, comedian, performance artist</div>
+          <div class="info-value">Not fully idealistic. Self identified developer, comedian, performance artist.</div>
         </div>
         <div class="info-item">
           <div class="info-label">Fun Fact</div>
-          <div class="info-value">I enjoy ugly chic</div>
+          <div class="info-value">I enjoy ugly chic. : )</div>
         </div>
         <div class="info-item">
           <div class="info-label">Interests</div>
-          <div class="info-value">Hiking, violin, acapella, surfing, gossiping, pranking on people</div>
-        </div>
-        <!-- Spotify Embed -->
-        <div class="info-item">
-          <div class="info-label">Favorite Track</div>
-          <div class="info-value">
-            <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/1rVT32ZVlD3rmmb7Jbkn1A?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-          </div>
+          <div class="info-value">Hiking, violin, acapella, surfing, gossiping, pranking on people.</div>
         </div>
       </div>
-      <div class="info-image-slider">
-        <img id="sliderImage" src="pic1.jpg" alt="pic1" style="width:100%; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.2);" />
+      <div class="info-right-panel">
+        <div class="info-image-slider">
+            <img id="sliderImage" src="pic1.jpg" alt="pic1" style="width:100%; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.2);" />
+        </div>
+        <div class="spotify-embed" style="width:100%; margin-top:20px; display:flex; justify-content:center;">
+            <iframe data-testid="embed-iframe" style="border-radius:12px; width:100%; " src="https://open.spotify.com/embed/track/1rVT32ZVlD3rmmb7Jbkn1A?utm_source=generator&theme=0" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        </div>
       </div>
     </div>
   </div>
@@ -78,6 +76,15 @@
         sliderImage.src = sliderImages[sliderIndex];
       }, 5000);
     });
+    
+    console.log(`     _________________________________________________
+    < Fun fact: Cowsay is Emoo's first project in 2026... >
+     -------------------------------------------------
+       \\    ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
+                ||----w |
+                ||     ||`);
   </script>
 </body>
 </html>
