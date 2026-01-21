@@ -7,7 +7,7 @@
 body {
     font-family: 'UnifrakturMaguntia', cursive;
     min-height: 100vh;
-    overflow: hidden;
+    /* overflow: hidden; */
     position: relative;
 }
 
@@ -176,11 +176,11 @@ body {
 }
 
 .info-logo {
-    max-width: 120px;
+    max-width: 180px;
     height: auto;
     border-radius: 20px;
     box-shadow: 0 4px 16px rgba(162,89,230,0.25);
-    background: #fff;
+    /* background: #fff; */
     padding: 8px;
 }
 
