@@ -28,7 +28,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      background: linear-gradient(135deg, #0a0a0a 0%, #153309 50%, #1f3e16 100%);
       z-index: -2;
     }
 
@@ -138,7 +138,7 @@
     }
 
     .answer-input:focus {
-      border-color: rgba(150, 100, 255, 0.6);
+      border-color: rgba(115, 34, 165, 0.6);
       box-shadow: 
         0 0 20px rgba(150, 100, 255, 0.4),
         inset 0 0 20px rgba(150, 100, 255, 0.1);
@@ -151,9 +151,12 @@
 
     .hint {
       margin-top: 20px;
-      color: rgba(255, 255, 255, 0.4);
       font-size: 1rem;
       font-style: italic;
+      background: linear-gradient(90deg, #6a5cff, #1aff64);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0.8;
     }
 
     /* Info page */
@@ -227,6 +230,42 @@
       padding-left: 20px;
     }
 
+    .info-page, .info-content, .info-title, .info-item, .info-label, .info-value {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    }
+    .info-title {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px #a259e6, 0 0 20px #37ca4a;
+      margin-bottom: 40px;
+      text-align: center;
+      border-bottom: 2px solid #a259e6;
+      padding-bottom: 10px;
+    }
+    .info-item {
+      margin-bottom: 25px;
+      padding-left: 20px;
+      border-left: 3px solid #a259e6;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(162,89,230,0.08);
+    }
+    .info-label {
+      color: #a259e6;
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 1.1rem;
+      text-shadow: 0 0 10px #a259e6;
+    }
+    .info-value {
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-left: 8px;
+    }
+
     @media (max-width: 768px) {
       .question {
         font-size: 2.5rem;
@@ -291,15 +330,15 @@
         </div>
         <div class="info-item">
           <div class="info-label">Description</div>
-          <div class="info-value">The funniest girl in the world</div>
+          <div class="info-value">Not fully idealistic. Self identified developer, comedian, performance artist</div>
         </div>
         <div class="info-item">
-          <div class="info-label">Location</div>
-          <div class="info-value">Available on GitHub</div>
+          <div class="info-label">Fun Fact</div>
+          <div class="info-value">I enjoy ugly chic</div>
         </div>
         <div class="info-item">
           <div class="info-label">Interests</div>
-          <div class="info-value">Coding, Design, Making people laugh</div>
+          <div class="info-value">Hiking, violin, acapella, surfing, gossiping, pranking on people</div>
         </div>
         <!-- Spotify Embed -->
         <div class="info-item">
