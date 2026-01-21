@@ -13,23 +13,6 @@
   <div class="background"></div>
   <div class="liquid-glass"></div>
 
-  <!-- Landing Page -->
-  <div class="landing-page" id="landingPage">
-    <div class="question-container">
-      <div class="question">Who is the funniest girl in the world?</div>
-      <div class="input-container">
-        <input 
-          type="text" 
-          class="answer-input" 
-          id="answerInput" 
-          placeholder="Type your answer..."
-          autocomplete="off"
-        />
-      </div>
-      <div class="hint">Enter the answer to continue...It's easy!</div>
-    </div>
-  </div>
-
   <!-- Info Page -->
   <div class="info-page" id="infoPage">
     <div class="info-logo-container">
@@ -69,37 +52,8 @@
   </div>
 
   <script>
-    const answerInput = document.getElementById('answerInput');
-    const landingPage = document.getElementById('landingPage');
-    const infoPage = document.getElementById('infoPage');
-
-
-    // Check answer only when Enter is pressed
-    answerInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const userAnswer = answerInput.value.trim().toLowerCase();
-        if (
-          userAnswer === 'emoo' ||
-          userAnswer === 'emoo wang' ||
-          userAnswer === 'baiyi wang' ||
-          userAnswer === 'baiyi'
-        ) {
-          window.location.href = 'info.html';
-          landingPage.style.display = 'none';
-          // infoPage.classList.add('active');
-          answerInput.value = '';
-        } else {
-          giveFeedback();
-        }
-      }
-    });
-
-    function giveFeedback() {
-      alert("It's obvious, try something that starts with 'e'.");
-    }
-
     // Image slider logic
+    infoPage.classList.add('active');
     const sliderImages = [
       'pic1.jpg',
       'pic2.jpeg',

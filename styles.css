@@ -151,7 +151,7 @@ body {
 
 /* Info page */
 .info-page {
-    display: none;
+    /* display: none; */
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -160,7 +160,7 @@ body {
     position: relative;
     z-index: 1;
     /* theme color based on amazing.png, e.g. vibrant purple-pink */
-    background: linear-gradient(135deg, #a259e6 0%, #f672a7 100%);
+    background: linear-gradient(135deg, #a259e6 0%, #258317 100%);
 }
 
 .info-page.active {
