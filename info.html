@@ -26,7 +26,7 @@
   <!-- Info Page -->
   <div class="info-page" id="infoPage">
     <div class="info-logo-container">
-      <img src="amazing.png" alt="Logo" class="info-logo" />
+      <img src="assets/amazing.png" alt="Logo" class="info-logo" />
     </div>
     <div class="info-container">
       <div class="info-content">
@@ -50,7 +50,7 @@
       </div>
       <div class="info-right-panel">
         <div class="info-image-slider">
-            <img id="sliderImage" src="pic1.jpg" alt="pic1" style="width:100%; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.2);" />
+            <img id="sliderImage" src="assets/pic1.jpg" alt="pic1" style="width:100%; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.2);" />
         </div>
         <div class="spotify-embed" style="width:100%; margin-top:20px; display:flex; justify-content:center;">
             <iframe data-testid="embed-iframe" style="border-radius:12px; width:100%; " src="https://open.spotify.com/embed/track/1rVT32ZVlD3rmmb7Jbkn1A?utm_source=generator&theme=0" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
@@ -59,15 +59,17 @@
     </div>
   </div>
 
-  <!-- Bubble Canvas -->
-  <canvas id="bubbleCanvas" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:10; pointer-events:auto; cursor:pointer;"></canvas>
+  <!-- Bubble Container -->
+  <div id="bubbleContainer" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:10; pointer-events:none;"></div>
+  <!-- Bubble Canvas (background only, not interactive) -->
+  <canvas id="bubbleCanvas" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:2; pointer-events:none;"></canvas>
 
   <script>
     // Image slider logic
     const sliderImages = [
-      'pic1.jpg',
-      'pic2.jpeg',
-      'pic3.jpeg'
+      'assets/pic1.jpg',
+      'assets/pic2.jpeg',
+      'assets/pic3.jpeg'
     ];
     let sliderIndex = 0;
     window.addEventListener('DOMContentLoaded', function() {
@@ -80,32 +82,103 @@
       }, 5000);
     });
     
-    // Bubble animation logic
+    // Bubble animation logic (HTML bubbles)
     const bubbleLabels = ["contact", "resume", "puzzles", "projects", "music", "opponent"];
     const colors = ["#a259e6", "#f672a7", "#5adbb5", "#ffe066", "#6a89cc", "#ff7675"];
-    const canvas = document.getElementById('bubbleCanvas');
-    const ctx = canvas.getContext('2d');
-    const radius = 72;
+    const bubbleContainer = document.getElementById('bubbleContainer');
+    const radius = 48;
     let bubbles = [];
     let dpr = window.devicePixelRatio || 1;
 
-    function resizeCanvas() {
-      dpr = window.devicePixelRatio || 1;
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = window.innerWidth + 'px';
-      canvas.style.height = window.innerHeight + 'px';
-      ctx.setTransform(1, 0, 0, 1, 0, 0); // Use identity for drawing
-    }
-    resizeCanvas();
-    window.addEventListener('resize', () => {
-      resizeCanvas();
-      // Reposition bubbles to stay in bounds after resize
-      for (const b of bubbles) {
-        b.x = Math.max(radius, Math.min(window.innerWidth * dpr - radius, b.x));
-        b.y = Math.max(radius, Math.min(window.innerHeight * dpr - radius, b.y));
-      }
-    });
+    function createBubble(label, color, x, y) {
+        const div = document.createElement('div');
+        div.className = 'bubble';
+        div.textContent = label;
+
+        Object.assign(div.style, {
+            position: 'absolute',
+            left: (x - radius) + 'px',
+            top: (y - radius) + 'px',
+            width: (2 * radius) + 'px',
+            height: (2 * radius) + 'px',
+            borderRadius: '50%',
+            zIndex: 11,
+            cursor: 'pointer',
+            pointerEvents: 'auto',
+            userSelect: 'none',
+
+            /* ===== 等价 ctx.globalAlpha = 0.85 ===== */
+            opacity: '0.85',
+
+            /* ===== 1. 等价 createRadialGradient ===== */
+            background: `
+            radial-gradient(
+                circle at ${radius * 0.7}px ${radius * 0.7}px,
+                rgba(255,255,255,0.55) 0%,
+                rgba(255,255,255,0.18) 40%,
+                rgba(255,255,255,0.08) 100%
+            )
+            `,
+
+            /* ===== 玻璃折射（canvas 没有，但视觉必须有） ===== */
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+
+            /* ===== 等价 shadowColor + shadowBlur ===== */
+            boxShadow: `0 0 24px ${color}`,
+
+            /* ===== 等价 ctx.stroke ===== */
+            border: '1.2px solid rgba(255,255,255,0.35)',
+
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+
+            font: 'bold 1.2rem -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif',
+            color: 'rgba(255,255,255,0.95)',
+        });
+
+        /* ===== 3. 高光反射（等价 arc 高光） ===== */
+        const highlight = document.createElement('div');
+        Object.assign(highlight.style, {
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            background: `
+            conic-gradient(
+                from 207deg at 35% 35%,
+                rgba(255,255,255,0.45) 0deg,
+                rgba(255,255,255,0.45) 30deg,
+                transparent 55deg
+            )
+            `,
+            maskImage: 'radial-gradient(circle, black 60%, transparent 61%)',
+            WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 61%)'
+        });
+
+        div.appendChild(highlight);
+
+        div.addEventListener('click', (e) => {
+            window.location.href = label + '.html';
+            e.stopPropagation();
+        });
+
+        bubbleContainer.appendChild(div);
+
+        return {
+            label,
+            color,
+            x,
+            y,
+            vx: (Math.random() - 0.5) * 2,
+            vy: -2 - Math.random() * 2,
+            div,
+            stopped: false
+        };
+        }
+
+
 
     function nonOverlappingPosition(existing, radius) {
       let tries = 0;
@@ -117,78 +190,18 @@
         }
         tries++;
       }
-      // fallback: just stack
       return { x: radius + tries * 2, y: window.innerHeight - radius };
     }
 
-    function createBubble(label, color, existing) {
-      const { x, y } = nonOverlappingPosition(existing, radius);
-      const vx = (Math.random() - 0.5) * 2;
-      const vy = -2 - Math.random() * 2;
-      return { x, y, vx, vy, label, color, stopped: false };
-    }
-
     function initBubbles() {
+      bubbleContainer.innerHTML = '';
       bubbles = [];
       for (let i = 0; i < bubbleLabels.length; i++) {
-        bubbles.push(createBubble(bubbleLabels[i], colors[i % colors.length], bubbles));
+        const {x, y} = nonOverlappingPosition(bubbles, radius);
+        bubbles.push(createBubble(bubbleLabels[i], colors[i % colors.length], x, y));
       }
     }
     initBubbles();
-
-    function drawBubble(b) {
-      ctx.save();
-      // ===== 1. 主体：液态玻璃径向渐变 =====
-      const grad = ctx.createRadialGradient(
-        b.x - radius * 0.3,
-        b.y - radius * 0.3,
-        radius * 0.2,
-        b.x,
-        b.y,
-        radius
-      );
-
-      grad.addColorStop(0, "rgba(255,255,255,0.55)");
-      grad.addColorStop(0.4, "rgba(255,255,255,0.18)"); 
-      grad.addColorStop(1, "rgba(255,255,255,0.08)");
-
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, radius, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.globalAlpha = 0.85;
-      ctx.shadowColor = b.color;
-      ctx.shadowBlur = 24;
-      ctx.fill();
-
-      // ===== 2. 玻璃边缘描边 =====
-      ctx.lineWidth = 1.2;
-      ctx.strokeStyle = "rgba(255,255,255,0.35)";
-      ctx.stroke();
-
-      // ===== 3. 高光反射（液态感关键） =====
-      ctx.beginPath();
-      ctx.arc(
-          b.x - radius * 0.25,
-          b.y - radius * 0.25,
-          radius * 0.55,
-          Math.PI * 1.15,
-          Math.PI * 1.45
-      );
-      ctx.strokeStyle = "rgba(255,255,255,0.45)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // ===== 4. 文字 =====
-      ctx.shadowBlur = 0;
-      ctx.globalAlpha = 1;
-      ctx.font = "bold 1.2rem -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif";
-      ctx.fillStyle = "rgba(255,255,255,0.95)";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(b.label, b.x, b.y);
-
-      ctx.restore();
-      }
 
     function updateBubbles() {
       for (let i = 0; i < bubbles.length; i++) {
@@ -198,54 +211,43 @@
         b.y += b.vy;
         // Bounce off left/right
         if (b.x - radius < 0) { b.x = radius; b.vx *= -1; }
-        if (b.x + radius > window.innerWidth * dpr) { b.x = window.innerWidth * dpr - radius; b.vx *= -1; }
+        if (b.x + radius > window.innerWidth) { b.x = window.innerWidth - radius; b.vx *= -1; }
         // Bounce off other bubbles
         for (let j = 0; j < bubbles.length; j++) {
           if (i === j) continue;
           let b2 = bubbles[j];
           let dx = b2.x - b.x, dy = b2.y - b.y, dist = Math.hypot(dx, dy);
           if (dist < 2 * radius) {
-            // Move apart
             const overlap = 2 * radius - dist;
             const angle = Math.atan2(dy, dx);
             b.x -= Math.cos(angle) * overlap / 2;
             b.y -= Math.sin(angle) * overlap / 2;
             b2.x += Math.cos(angle) * overlap / 2;
             b2.y += Math.sin(angle) * overlap / 2;
-            // Bounce to exact opposite direction
             b.vx *= -1; b.vy *= -1;
             b2.vx *= -1; b2.vy *= -1;
           }
         }
         // Bounce off bottom
-        if (b.y + radius > window.innerHeight * dpr) { b.y = window.innerHeight * dpr - radius; b.vy *= -1; }
+        if (b.y + radius > window.innerHeight) { b.y = window.innerHeight - radius; b.vy *= -1; }
         // Stop at top
         if (b.y - radius <= 0) { b.y = radius; b.vx = 0; b.vy = 0; b.stopped = true; }
+        // Update position
+        b.div.style.left = (b.x - radius) + 'px';
+        b.div.style.top = (b.y - radius) + 'px';
       }
     }
 
-    // Bubble click navigation
-    canvas.addEventListener('click', function(e) {
-      const rect = canvas.getBoundingClientRect();
-      // Use dpr for both drawing and click
-      const mouseX = (e.clientX - rect.left) * dpr;
-      const mouseY = (e.clientY - rect.top) * dpr;
-      for (const b of bubbles) {
-        if (Math.hypot(b.x - mouseX, b.y - mouseY) <= radius) {
-          window.location.href = b.label + '.html';
-          break;
-        }
-      }
+    function animateBubbles() {
+      updateBubbles();
+      requestAnimationFrame(animateBubbles);
+    }
+    animateBubbles();
+
+    window.addEventListener('resize', () => {
+      initBubbles();
     });
 
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      updateBubbles();
-      for (const b of bubbles) drawBubble(b);
-      requestAnimationFrame(animate);
-    }
-    animate();
-    
     console.log(`     _________________________________________________
     < Fun fact: Cowsay is Emoo's first project in 2026... >
      -------------------------------------------------

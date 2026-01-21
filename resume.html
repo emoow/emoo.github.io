@@ -17,8 +17,315 @@
     .info-page.active {
       opacity: 1;
     }
+    .download-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: hsl(273, 79%, 47%);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.download-btn:hover {
+    background-color: hwb(257 19% 36%);
+}
   </style>
 </head>
 <body>
   <div class="background"></div>
   <div class="liquid-glass"></div>
+
+  <!-- Resume Page -->
+<div class="resumePage">
+</div>
+
+
+  <!-- Bubble Container -->
+  <div id="bubbleContainer" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:10; pointer-events:none;"></div>
+  <!-- Bubble Canvas (background only, not interactive) -->
+  <canvas id="bubbleCanvas" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:2; pointer-events:none;"></canvas>
+
+  <script>
+    // Image slider logic
+    const sliderImages = [
+      'assets/pic1.jpg',
+      'assets/pic2.jpeg',
+      'assets/pic3.jpeg'
+    ];
+    let sliderIndex = 0;
+    window.addEventListener('DOMContentLoaded', function() {
+      // Fade in info page
+      document.getElementById('infoPage').classList.add('active');
+      const sliderImage = document.getElementById('sliderImage');
+      setInterval(() => {
+        sliderIndex = (sliderIndex + 1) % sliderImages.length;
+        sliderImage.src = sliderImages[sliderIndex];
+      }, 5000);
+    });
+    
+    // Bubble animation logic (HTML bubbles)
+    const bubbleLabels = ["contact", "resume", "puzzles", "projects", "music", "opponent"];
+    const colors = ["#a259e6", "#f672a7", "#5adbb5", "#ffe066", "#6a89cc", "#ff7675"];
+    const bubbleContainer = document.getElementById('bubbleContainer');
+    const radius = 48;
+    let bubbles = [];
+    let dpr = window.devicePixelRatio || 1;
+
+    function createBubble(label, color, x, y) {
+        const div = document.createElement('div');
+        div.className = 'bubble';
+        div.textContent = label;
+
+        Object.assign(div.style, {
+            position: 'absolute',
+            left: (x - radius) + 'px',
+            top: (y - radius) + 'px',
+            width: (2 * radius) + 'px',
+            height: (2 * radius) + 'px',
+            borderRadius: '50%',
+            zIndex: 11,
+            cursor: 'pointer',
+            pointerEvents: 'auto',
+            userSelect: 'none',
+
+            /* ===== 等价 ctx.globalAlpha = 0.85 ===== */
+            opacity: '0.85',
+
+            /* ===== 1. 等价 createRadialGradient ===== */
+            background: `
+            radial-gradient(
+                circle at ${radius * 0.7}px ${radius * 0.7}px,
+                rgba(255,255,255,0.55) 0%,
+                rgba(255,255,255,0.18) 40%,
+                rgba(255,255,255,0.08) 100%
+            )
+            `,
+
+            /* ===== 玻璃折射（canvas 没有，但视觉必须有） ===== */
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+
+            /* ===== 等价 shadowColor + shadowBlur ===== */
+            boxShadow: `0 0 24px ${color}`,
+
+            /* ===== 等价 ctx.stroke ===== */
+            border: '1.2px solid rgba(255,255,255,0.35)',
+
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+
+            font: 'bold 1.2rem -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif',
+            color: 'rgba(255,255,255,0.95)',
+        });
+
+        /* ===== 3. 高光反射（等价 arc 高光） ===== */
+        const highlight = document.createElement('div');
+        Object.assign(highlight.style, {
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            background: `
+            conic-gradient(
+                from 207deg at 35% 35%,
+                rgba(255,255,255,0.45) 0deg,
+                rgba(255,255,255,0.45) 30deg,
+                transparent 55deg
+            )
+            `,
+            maskImage: 'radial-gradient(circle, black 60%, transparent 61%)',
+            WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 61%)'
+        });
+
+        div.appendChild(highlight);
+
+        div.addEventListener('click', (e) => {
+            window.location.href = label + '.html';
+            e.stopPropagation();
+        });
+
+        bubbleContainer.appendChild(div);
+
+        return {
+            label,
+            color,
+            x,
+            y,
+            vx: (Math.random() - 0.5) * 2,
+            vy: -2 - Math.random() * 2,
+            div,
+            stopped: false
+        };
+        }
+
+
+
+    function nonOverlappingPosition(existing, radius) {
+      let tries = 0;
+      while (tries < 1000) {
+        const x = Math.random() * (window.innerWidth - 2 * radius) + radius;
+        const y = window.innerHeight - radius - Math.random() * 40;
+        if (existing.every(b => Math.hypot(b.x - x, b.y - y) >= 2 * radius)) {
+          return { x, y };
+        }
+        tries++;
+      }
+      return { x: radius + tries * 2, y: window.innerHeight - radius };
+    }
+
+    function initBubbles() {
+      bubbleContainer.innerHTML = '';
+      bubbles = [];
+      for (let i = 0; i < bubbleLabels.length; i++) {
+        const {x, y} = nonOverlappingPosition(bubbles, radius);
+        bubbles.push(createBubble(bubbleLabels[i], colors[i % colors.length], x, y));
+      }
+    }
+    initBubbles();
+
+    function updateBubbles() {
+      for (let i = 0; i < bubbles.length; i++) {
+        let b = bubbles[i];
+        if (b.stopped) continue;
+        b.x += b.vx;
+        b.y += b.vy;
+        // Bounce off left/right
+        if (b.x - radius < 0) { b.x = radius; b.vx *= -1; }
+        if (b.x + radius > window.innerWidth) { b.x = window.innerWidth - radius; b.vx *= -1; }
+        // Bounce off other bubbles
+        for (let j = 0; j < bubbles.length; j++) {
+          if (i === j) continue;
+          let b2 = bubbles[j];
+          let dx = b2.x - b.x, dy = b2.y - b.y, dist = Math.hypot(dx, dy);
+          if (dist < 2 * radius) {
+            const overlap = 2 * radius - dist;
+            const angle = Math.atan2(dy, dx);
+            b.x -= Math.cos(angle) * overlap / 2;
+            b.y -= Math.sin(angle) * overlap / 2;
+            b2.x += Math.cos(angle) * overlap / 2;
+            b2.y += Math.sin(angle) * overlap / 2;
+            b.vx *= -1; b.vy *= -1;
+            b2.vx *= -1; b2.vy *= -1;
+          }
+        }
+        // Bounce off bottom
+        if (b.y + radius > window.innerHeight) { b.y = window.innerHeight - radius; b.vy *= -1; }
+        // Stop at top
+        if (b.y - radius <= 0) { b.y = radius; b.vx = 0; b.vy = 0; b.stopped = true; }
+        // Update position
+        b.div.style.left = (b.x - radius) + 'px';
+        b.div.style.top = (b.y - radius) + 'px';
+      }
+    }
+
+    function animateBubbles() {
+      updateBubbles();
+      requestAnimationFrame(animateBubbles);
+    }
+    animateBubbles();
+
+    window.addEventListener('resize', () => {
+      initBubbles();
+    });
+    
+    console.log(`
+     _____________________________________________________________________
+    < Though really don't know why you checking console for resume page... >
+     ---------------------------------------------------------------------
+             \\      .
+              \\   ":"
+                   ___:____     |"\\/|
+               ,'        \`.    \\  /
+               |  O        \\___/  |
+               ~^~^~^~^~^~^~^~^~^~^~^~^~
+    `);
+  </script>
+
+  <div class="info-page active" id="resumePage">
+    <div class="info-logo-container">
+      <img src="assets/amazing.png" alt="Logo" class="info-logo" />
+    </div>
+    <div class="info-content">
+        <div class="info-title">Resume</div>
+        
+        <div class="info-item">
+          <div class="info-label">Name</div>
+          <div class="info-value">Baiyi Wang (Emoo)</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Contact</div>
+          <div class="info-value">
+            📧 emoowang392@gmail.com<br>
+            📱 (215) 596-9449<br>
+            📍 Philadelphia, PA<br>
+            💼 <a href="https://www.linkedin.com/in/baiyi-wang-8819262bb" target="_blank" style="color: hsl(271, 33%, 84%);">LinkedIn</a> | 
+            💻 <a href="https://github.com/emoow" target="_blank" style="color: hsl(271, 33%, 84%);">GitHub</a>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Education</div>
+          <div class="info-value">
+            <strong>University of Pennsylvania</strong> (Aug 2025 – May 2027)<br>
+            Master of Computer and Information Technology<br>
+            <em>Courses: Software Development (Java), Computer Systems (C), Applied Machine Learning (PyTorch)</em>
+            <br><br>
+            <strong>Nanjing University</strong> (Sept 2021 – June 2025)<br>
+            Bachelor of Laws in Sociology<br>
+            <em>Awards: Ruli Scholarship (Top 3%), National Scholarship 2022-2024 (Top 10%)</em>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Experience</div>
+          <div class="info-value">
+            <strong>Starways AI</strong> - AI Engineer (Apr 2025 – Aug 2025)<br>
+            • Co-founded and scaled Starways AI by securing $0.7M in first-round funding from Sequoia China and growing the team from 4 to 12 members. Led AI development initiatives in the initial phase.<br>
+            • Developed an AI-powered recruiting agent platform with three other founders by designing a planner-worker agent structure, creating 6 functional agent tools and 3 benchmark workflows (resume parsing, HTML-based rewriting, and interactive editing) using Python, Langchain, and FastAPI.<br>
+            • Enhanced AI recruiter-candidate matching accuracy by 25% through training agents to perform SQL and Elastic-search-based search operations.<br>
+            • Built a first-of-its-kind internal evaluation platform across 6 core AI workflows by architecting integrated database systems, prompt libraries, and debugging environments with cross-functional team delivery.<br><br>
+            
+            <strong>Moonshot AI</strong> - Product Manager Intern (Sep 2024 – Apr 2025)<br>
+            • Led prompt engineering for multimodal AI (images, PDFs)<br>
+            • Achieved 90%+ accuracy in KimiV multimodal model<br>
+            • Eliminated $3M in annual API costs through optimization<br><br>
+            
+            <strong>Deloitte China</strong> - Risk Management Intern (June 2024 – Aug 2024)<br>
+            • Built AI legislation checker with 80% accuracy<br>
+            • Reduced report creation time from 10 hours to 1 minute
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Skills</div>
+          <div class="info-value">
+            <strong>Languages:</strong> Python, Java, C, C#, Swift<br>
+            <strong>Technologies:</strong> PyTorch, RLHF, LangChain, LangGraph, OpenAI API, Elasticsearch, SQL
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Featured Projects</div>
+          <div class="info-value">
+            <strong>Image2GPS</strong> - CNN-Based Geolocation Model<br>
+            • 38.9m average error (95% improvement over baseline)<br>
+            • <a href="https://huggingface.co/cis519FinalProject" target="_blank" style="color: #a259e6;">View on HuggingFace</a><br><br>
+            
+            <strong>Feynman</strong> - Multi-modal AI Tutoring Platform (Hack Princeton 2025)<br>
+            • Real-time vision, voice, and interactive drawing<br>
+            • <a href="https://github.com/danleeaj/feynman" target="_blank" style="color: #a259e6;">View on GitHub</a>
+          </div>
+        </div>
+        
+        <div style="margin: 32px 0; text-align: center;">
+          <a href="assets/Baiyi wang resume.pdf" download class="download-btn" style="background:#a259e6;color:#fff;padding:12px 32px;border-radius:24px;font-size:1.1rem;font-weight:600;text-decoration:none;box-shadow:0 2px 8px rgba(162,89,230,0.15);transition:background 0.2s;">Download Full Resume (PDF)</a>
+        </div>
+      </div>
+    
+  </div>
+</body>
+</html>
