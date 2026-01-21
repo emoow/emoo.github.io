@@ -60,7 +60,7 @@
   </div>
 
   <!-- Bubble Canvas -->
-  <canvas id="bubbleCanvas" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:10; pointer-events:none;"></canvas>
+  <canvas id="bubbleCanvas" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:10; pointer-events:auto; cursor:pointer;"></canvas>
 
   <script>
     // Image slider logic
@@ -85,24 +85,25 @@
     const colors = ["#a259e6", "#f672a7", "#5adbb5", "#ffe066", "#6a89cc", "#ff7675"];
     const canvas = document.getElementById('bubbleCanvas');
     const ctx = canvas.getContext('2d');
-    const radius = 48;
+    const radius = 72;
     let bubbles = [];
+    let dpr = window.devicePixelRatio || 1;
 
     function resizeCanvas() {
-      const dpr = window.devicePixelRatio || 1;
+      dpr = window.devicePixelRatio || 1;
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = window.innerWidth + 'px';
       canvas.style.height = window.innerHeight + 'px';
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.setTransform(1, 0, 0, 1, 0, 0); // Use identity for drawing
     }
     resizeCanvas();
     window.addEventListener('resize', () => {
       resizeCanvas();
       // Reposition bubbles to stay in bounds after resize
       for (const b of bubbles) {
-        b.x = Math.max(radius, Math.min(window.innerWidth - radius, b.x));
-        b.y = Math.max(radius, Math.min(window.innerHeight - radius, b.y));
+        b.x = Math.max(radius, Math.min(window.innerWidth * dpr - radius, b.x));
+        b.y = Math.max(radius, Math.min(window.innerHeight * dpr - radius, b.y));
       }
     });
 
@@ -180,9 +181,8 @@
       // ===== 4. 文字 =====
       ctx.shadowBlur = 0;
       ctx.globalAlpha = 1;
-      ctx.font =
-          "600 0.8rem -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif";
-      ctx.fillStyle = "rgba(255,255,255,0.9)";
+      ctx.font = "bold 1.2rem -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(b.label, b.x, b.y);
@@ -198,7 +198,7 @@
         b.y += b.vy;
         // Bounce off left/right
         if (b.x - radius < 0) { b.x = radius; b.vx *= -1; }
-        if (b.x + radius > window.innerWidth) { b.x = window.innerWidth - radius; b.vx *= -1; }
+        if (b.x + radius > window.innerWidth * dpr) { b.x = window.innerWidth * dpr - radius; b.vx *= -1; }
         // Bounce off other bubbles
         for (let j = 0; j < bubbles.length; j++) {
           if (i === j) continue;
@@ -212,18 +212,31 @@
             b.y -= Math.sin(angle) * overlap / 2;
             b2.x += Math.cos(angle) * overlap / 2;
             b2.y += Math.sin(angle) * overlap / 2;
-            // Elastic collision
-            const vx1 = b.vx, vy1 = b.vy, vx2 = b2.vx, vy2 = b2.vy;
-            b.vx = vx2; b.vy = vy2;
-            b2.vx = vx1; b2.vy = vy1;
+            // Bounce to exact opposite direction
+            b.vx *= -1; b.vy *= -1;
+            b2.vx *= -1; b2.vy *= -1;
           }
         }
         // Bounce off bottom
-        if (b.y + radius > window.innerHeight) { b.y = window.innerHeight - radius; b.vy *= -1; }
+        if (b.y + radius > window.innerHeight * dpr) { b.y = window.innerHeight * dpr - radius; b.vy *= -1; }
         // Stop at top
         if (b.y - radius <= 0) { b.y = radius; b.vx = 0; b.vy = 0; b.stopped = true; }
       }
     }
+
+    // Bubble click navigation
+    canvas.addEventListener('click', function(e) {
+      const rect = canvas.getBoundingClientRect();
+      // Use dpr for both drawing and click
+      const mouseX = (e.clientX - rect.left) * dpr;
+      const mouseY = (e.clientY - rect.top) * dpr;
+      for (const b of bubbles) {
+        if (Math.hypot(b.x - mouseX, b.y - mouseY) <= radius) {
+          window.location.href = b.label + '.html';
+          break;
+        }
+      }
+    });
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
