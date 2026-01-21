@@ -340,26 +340,24 @@
     const landingPage = document.getElementById('landingPage');
     const infoPage = document.getElementById('infoPage');
 
-    answerInput.addEventListener('input', function(e) {
-      const userAnswer = e.target.value.trim();
-      
-      // Check if answer is "Emoo" (case-insensitive)
-      if (userAnswer.toLowerCase() === 'emoo' && userAnswer.toLowerCase() === 'emoo wang' && userAnswer.toLowerCase() === 'baiyi wang' && userAnswer.toLowerCase() === 'baiyi') {
-        // Hide landing page and show info page
-        landingPage.style.display = 'none';
-        infoPage.classList.add('active');
-        
-        // Clear the input
-        answerInput.value = '';
-      } else {
-        giveFeedback();
-      }
-    });
 
-    // Prevent form submission on Enter
+    // Check answer only when Enter is pressed
     answerInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
+        const userAnswer = answerInput.value.trim().toLowerCase();
+        if (
+          userAnswer === 'emoo' ||
+          userAnswer === 'emoo wang' ||
+          userAnswer === 'baiyi wang' ||
+          userAnswer === 'baiyi'
+        ) {
+          landingPage.style.display = 'none';
+          infoPage.classList.add('active');
+          answerInput.value = '';
+        } else {
+          giveFeedback();
+        }
       }
     });
 
