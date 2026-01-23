@@ -46,7 +46,7 @@
   </style>
 </head>
 <body>
-  <div class="background"></div>
+  <div class="background-light"></div>
   <div class="liquid-glass"></div>
 
   
@@ -57,7 +57,7 @@
 
   <script>
     // Bubble animation logic (HTML bubbles)
-    const bubbleLabels = ["contact", "resume", "info", "projects", "info", "opponent"];
+    const bubbleLabels = ["contact", "resume", "music", "projects", "info", "opponent"];
     const colors = ["#a259e6", "#f672a7", "#5adbb5", "#ffe066", "#6a89cc", "#ff7675"];
     const bubbleContainer = document.getElementById('bubbleContainer');
     const radius = 48;
@@ -237,7 +237,7 @@
 
   </script>
 
-  <div id="hangman-game" style="display: flex; justify-content: space-between; align-items: center; margin: 20px;">
+  <div id="hangman-game" style="display: flex; justify-content: space-between; align-items: center; margin-top: 200px; margin-left:50px;">
     <!-- Letter Input Section -->
     <div id="letter-input-section" style="width: 40%;">
       <p id="word-display" style="color:antiquewhite; font-size: 60px; letter-spacing: 8px;">_ _ _ _ _</p>
@@ -284,6 +284,8 @@
     // Initial call to update word display
     updateWordDisplay();
 
+    let inputHistory = [];
+    
     letterInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         const letter = letterInput.value.toLowerCase();
@@ -341,42 +343,118 @@
 
     // Update the image and size whenever a mistake is made
     letterInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
+        if (event.key !== "Enter") return;
+
         const letter = letterInput.value.toLowerCase();
         letterInput.value = "";
         message.textContent = "";
+        
+        // 记录输入
+        inputHistory.push(letter);
 
         if (!letter || letter.length !== 1 || !/[a-z]/.test(letter)) {
-          message.textContent = "Please enter a valid letter.";
-          return;
+            message.textContent = "Please enter a valid letter.";
+            return;
         }
 
-        if (selectedWord.includes(letter)) {
-          for (let i = 0; i < selectedWord.length; i++) {
-            if (selectedWord[i] === letter) {
-              guessedWord[i] = letter;
-            }
-          }
-
-          if (!guessedWord.includes("_")) {
+        // 👉 规则 1：重复输入检测
+        if (inputHistory.includes(letter)) {
             message.style.color = "white";
-            message.textContent = "Congratulations! You won!";
-            letterInput.disabled = true;
-          }
-        } else {
-          mistakes++;
-          updateHangmanImage();
+            message.textContent = "you should improve your memory";
+            return;
+        }
 
-          if (mistakes === 5) {
+
+        // 👉 规则 2：彩蛋 emoo
+        if (inputHistory.length >= 4) {
+            const firstFour = inputHistory.slice(0, 4).join("");
+            if (firstFour === "emoo") {
+            message.style.color = "white";
+            message.textContent = "Life lesson: don't use same trick for twice";
+            }
+        }
+
+        // 正常游戏逻辑
+        if (selectedWord.includes(letter)) {
+            for (let i = 0; i < selectedWord.length; i++) {
+            if (selectedWord[i] === letter) {
+                guessedWord[i] = letter;
+            }
+            }
+
+            if (!guessedWord.includes("_")) {
+            message.style.color = "white";
+            message.textContent = "congrats my dear friend, beat 100% visitors.";
+            letterInput.disabled = true;
+            }
+        } else {
+            mistakes++;
+            updateHangmanImage();
+
+            if (mistakes === 6) {
             message.style.color = "white";
             message.textContent = `Game over! The word was: ${selectedWord}`;
             letterInput.disabled = true;
-          }
+            }
         }
 
         updateWordDisplay();
+        });
+
+  // Fix message updates for different cases
+  letterInput.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+
+    const letter = letterInput.value.toLowerCase();
+    letterInput.value = "";
+    message.textContent = "";
+
+    // Rule 1: Check for repeated input
+    if (inputHistory.includes(letter)) {
+      message.style.color = "white";
+      message.textContent = "You already tried this letter. Try another one!";
+      return;
+    }
+
+    inputHistory.push(letter);
+
+    // Rule 2: Easter egg for "emoo"
+    if (inputHistory.length >= 4) {
+      const firstFour = inputHistory.slice(0, 4).join("");
+      if (firstFour === "emoo") {
+        message.style.color = "white";
+        message.textContent = "Life lesson: don't use the same trick twice.";
       }
-    });
+    }
+
+    // Normal game logic
+    if (selectedWord.includes(letter)) {
+      for (let i = 0; i < selectedWord.length; i++) {
+        if (selectedWord[i] === letter) {
+          guessedWord[i] = letter;
+        }
+      }
+
+      if (!guessedWord.includes("_")) {
+        message.style.color = "white";
+        message.textContent = "Congratulations! You won!";
+        letterInput.disabled = true;
+      }
+    } else {
+      mistakes++;
+
+      if (mistakes === 6) {
+        hangmanImage.style.display = "none"; // Hide the image
+        message.style.color = "white";
+        message.textContent = "Beauty, humour and intelligence";
+        letterInput.disabled = true;
+      } else {
+        updateHangmanImage();
+      }
+    }
+
+    updateWordDisplay();
+  });
   </script>
 </body>
 </html>
