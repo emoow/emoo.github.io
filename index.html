@@ -9,9 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body style="overflow-y: hidden;">
   <div class="background"></div>
-  <div class="liquid-glass"></div>
 
   <!-- Landing Page -->
   <div class="landing-page" id="landingPage">
@@ -28,11 +27,99 @@
       </div>
       <div class="hint">Enter the answer to continue...It's easy!</div>
     </div>
+    <div class="hands">
+      <img src="assets/mooarm/emoo-left/l-0.png" alt="left_hand" id="left_hand" style="min-width: 20%; max-width: 40%;z-index: 50" />
+      <img src="assets/mooarm/emoo-right/r-0.png" alt="right_hand" id="right_hand" style="min-width: 20%; max-width: 40%;z-index: 50" />
+    </div>
   </div>
 
   <script>
     const answerInput = document.getElementById('answerInput');
     const landingPage = document.getElementById('landingPage');
+    
+    //hand images for animation
+    const leftHand = document.getElementById('left_hand');
+    const rightHand = document.getElementById('right_hand');
+    const leftHandImages = [
+      'assets/mooarm/emoo-left/l-0.png',
+      'assets/mooarm/emoo-left/l-1.png',
+      'assets/mooarm/emoo-left/l-2.png',
+      'assets/mooarm/emoo-left/l-3.png',
+      'assets/mooarm/emoo-left/l-4.png',
+      'assets/mooarm/emoo-left/l-5.png',
+    ];
+    const rightHandImages = [
+      'assets/mooarm/emoo-right/r-0.png',
+      'assets/mooarm/emoo-right/r-1.png',
+      'assets/mooarm/emoo-right/r-2.png',
+      'assets/mooarm/emoo-right/r-3.png',
+      'assets/mooarm/emoo-right/r-4.png',
+      'assets/mooarm/emoo-right/r-5.png',
+    ];
+
+    leftHandImages.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+
+    rightHandImages.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+
+    const keyToLeftHandIndex = {
+      q: 1,
+      a: 1,
+      z: 1,
+      s: 2,
+      x: 2,
+      e: 3,
+      d: 3,
+      c: 3,
+      r: 4,
+      f: 4,
+      v: 4,
+      t: 4,
+      g: 4,
+      b: 4,
+      ' ': 5,
+  };
+    const keyToRightHandIndex = {
+      y: 2,
+      u: 2,
+      h: 2,
+      j: 2,
+      n: 2,
+      m: 2,
+      i: 3,
+      k: 3,
+      ',': 3,
+      o: 4,
+      l: 4,
+      '.': 4,
+      p: 5,
+      ';': 5,
+      '/': 5,
+    };
+
+    document.addEventListener('keydown', (e) => {
+      const index_left = keyToLeftHandIndex[e.key.toLowerCase()];
+      const index_right = keyToRightHandIndex[e.key.toLowerCase()];
+      if (index_left !== undefined) {
+        leftHand.src = leftHandImages[index_left];
+      }
+      if (index_right !== undefined) {
+        rightHand.src = rightHandImages[index_right];
+      }
+    });
+
+    const REST_INDEX = 0;
+
+    document.addEventListener('keyup', () => {
+      leftHand.src = leftHandImages[REST_INDEX];
+      rightHand.src = rightHandImages[REST_INDEX];
+    });
+
 
     // Check answer only when Enter is pressed
     answerInput.addEventListener('keydown', function(e) {
@@ -58,7 +145,8 @@
       alert("It's obvious, try something that starts with 'e'.");
     }
 
-    console.log(`     ______________________________________________
+    console.log(`     
+     ______________________________________________
     < Smart idea, but I see through your tricks... >
      ----------------------------------------------
        \\

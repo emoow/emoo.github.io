@@ -4,8 +4,15 @@
     box-sizing: border-box;
 }
 
+@font-face {
+  font-family: "Diary";
+  src: url("assets/fonts/DiaryOfAWimpyKidFont-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
-    font-family: 'UnifrakturMaguntia', cursive;
+    font-family: 'Diary', cursive;
     min-height: 100vh;
     /* overflow: hidden; */
     position: relative;
@@ -18,7 +25,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #0a0a0a 0%, #153309 50%, #1f3e16 100%);
+    background: linear-gradient(135deg, #edebeb 0%, #e4e4de 50%, #bfc3be 100%);
     z-index: -2;
 }
 
@@ -29,8 +36,11 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(155deg, #a259e6 0%, #258317 100%);
+    background-color: #fdfbf3; 
+    background-image: url('assets/rice-paper-3.png');
+    background-repeat: repeat;
     z-index: -2;
+    padding: 20px;
 }
 
 /* Animated liquid glass effect */
@@ -65,6 +75,10 @@ body {
     }
 }
 
+.landing-main-div {
+    overflow: hidden;
+}
+
 /* Landing page */
 .landing-page {
     display: flex;
@@ -72,7 +86,8 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
+    min-width: 100vw;
+    padding-top: 160px;
     position: relative;
     z-index: 1;
 }
@@ -106,11 +121,7 @@ body {
 
 .question {
     font-size: 3.5rem;
-    color: #ffffff;
-    text-shadow: 
-    0 0 10px rgba(255, 255, 255, 0.5),
-    0 0 20px rgba(150, 100, 255, 0.5),
-    0 0 30px rgba(150, 100, 255, 0.3);
+    color: hwb(0 0% 100% / 0.67);
     margin-bottom: 40px;
     letter-spacing: 2px;
     line-height: 1.2;
@@ -122,13 +133,13 @@ body {
 }
 
 .answer-input {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(240, 235, 235, 0.3);
     border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
     padding: 15px 20px;
     font-size: 1.5rem;
-    color: #ffffff;
-    font-family: 'UnifrakturMaguntia', cursive;
+    color: hsla(249, 100%, 3%, 0.791);
+    font-family: "Diary", cursive;
     width: 100%;
     max-width: 300px;
     text-align: center;
@@ -139,24 +150,22 @@ body {
 }
 
 .answer-input:focus {
-    border-color: rgba(115, 34, 165, 0.6);
+    border-color: #00000099;
     box-shadow: 
-    0 0 20px rgba(150, 100, 255, 0.4),
-    inset 0 0 20px rgba(150, 100, 255, 0.1);
+    0 0 20px #00000066,
+    inset 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 .answer-input::placeholder {
-    color: rgba(255, 255, 255, 0.3);
+    color: #0807074d;
     font-size: 1.2rem;
 }
 
 .hint {
     margin-top: 20px;
     font-size: 1rem;
-    font-style: italic;
-    background: linear-gradient(90deg, #6a5cff, #1aff64);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-family: "Diary", cursive;
+    background: color(srgb rgba(4, 0, 0, 0.575));
     opacity: 0.8;
 }
 
@@ -170,8 +179,9 @@ body {
     padding: 40px 20px;
     position: relative;
     z-index: 1;
-    /* theme color based on amazing.png, e.g. vibrant purple-pink */
-    background: linear-gradient(135deg, #a259e6 0%, #258317 100%);
+    background-color: #fdfbf3; 
+    background-image: url('assets/rice-paper-3.png');
+    background-repeat: repeat;
 }
 
 .info-page.active {
@@ -190,8 +200,6 @@ body {
     max-width: 240px;
     height: auto;
     border-radius: 20px;
-    box-shadow: 0 4px 16px rgba(162,89,230,0.25);
-    /* background: #fff; */
     padding: 2px;
 }
 
@@ -200,15 +208,15 @@ body {
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #fdfbf3; 
+    background-image: url('assets/lined-paper-2.png');
+    background-repeat: repeat;
+    border: 3px solid hsla(0, 0%, 4%, 0.668);
     border-radius: 20px;
     padding: 40px 20px;
-    box-shadow: 
+    /* box-shadow: 
     0 8px 32px 0 rgba(0, 0, 0, 0.37),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1); */
     max-width: 900px;
     width: 100%;
 }
@@ -222,7 +230,7 @@ body {
 
 .info-content {
     flex: 1;
-    color: rgba(255, 255, 255, 0.9);
+    color: hsla(249, 100%, 3%, 0.791);
     font-size: 1.0rem;
     line-height: 1.8;
     text-align: left;
@@ -238,37 +246,41 @@ body {
     /* padding-left: 20px; */
 }
 
-.info-page, .info-content, .info-title, .info-item, .info-label, .info-value {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+.info-value {
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
 }
+
+.info-page, .info-content, .info-title, .info-item, .info-label, .info-value-info {
+    /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+} */
+    font-family: Diary, cursive; }
 .info-title {
     font-size: 3rem;
     font-weight: 800;
     color: #fff;
     letter-spacing: 2px;
-    text-shadow: 0 0 10px #e3daec, 0 0 20px #37ca4a;
+    text-shadow: 0 0 10px #e3daec, 0 0 20px hsl(0, 0%, 0%);
     margin-bottom: 40px;
     text-align: center;
-    border-bottom: 2px solid #a259e6;
+    border-bottom: 2px solid hsl(69, 13%, 78%);
     padding-bottom: 10px;
 }
 .info-item {
     margin-bottom: 25px;
     padding-left: 20px;
-    border-left: 3px solid #a259e6;
+    border-left: 3px solid hsl(266, 41%, 3%);
     background: rgba(255,255,255,0.05);
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(162,89,230,0.08);
 }
 .info-label {
-    color: hsl(274, 14%, 90%);
+    color: hwb(270 0% 99%);
     font-weight: bold;
     margin-bottom: 5px;
     font-size: 1.1rem;
-    text-shadow: 0 0 10px hsla(136, 77%, 36%, 0.652);
 }
-.info-value {
-    color: #fff;
+.info-value, .info-value-info {
+    color: hsla(0, 0%, 0%, 0.924);
     font-size: 1.2rem;
     font-weight: 500;
     margin-left: 8px;
@@ -300,4 +312,11 @@ body {
     padding-left: 0;
     margin-top: 20px;
     }
+}
+
+.hands {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top:-200px;
 }

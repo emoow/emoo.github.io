@@ -1,1 +1,64 @@
-i am my own greatest enemy
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emoo - Music</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .info-page {
+      opacity: 0;
+      transition: opacity 1s ease-in;
+      /* keep display: flex or block as needed */
+    }
+    .info-page.active {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="background"></div>
+  <div class="liquid-glass"></div>
+
+  <div class="info-page" id="infoPage">
+    <div class="info-logo-container">
+      <img src="assets/amazing.png" alt="Logo" class="info-logo" />
+    </div>
+    <div class="profile-container" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; min-width: 90%;">
+        <iframe src="https://danleeaj.github.io/" alt="dan" style="min-height: 500px; min-width: 100%; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.2);" ></iframe>
+        <iframe src="https://felisawiley.com/" alt="fee" style="min-height: 500px; min-width: 100%; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.2);"></iframe>
+        <iframe src="https://juanjf.com/" alt="pic4" style="min-height: 500px; min-width: 100%; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.2);"></iframe>
+    </div>
+  </div>
+
+  <!-- Bubble Container -->
+  <div id="bubbleContainer" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:10; pointer-events:none;"></div>
+  <!-- Bubble Canvas (background only, not interactive) -->
+  <canvas id="bubbleCanvas" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:2; pointer-events:none;"></canvas>
+  <script src="bubbles.js"></script>
+
+  <script>
+
+    window.addEventListener('resize', () => {
+      initBubbles();
+    });
+
+    console.log(`     
+     ___________________________________________________________________
+    < If you want to be featured, email me with 5 lines of compliments. >
+     -------------------------------------------------------------------
+       \\     _      _      _
+         \\ >(.)__ <(.)__ =(.)__
+             (___/  (___/  (___/ `);
+
+    window.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('infoPage').classList.add('active'); // slight delay to ensure transition
+    });
+
+
+  </script>
+</body>
+</html>
