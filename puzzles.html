@@ -32,7 +32,7 @@
       outline: none;
       color: #0b0803;
       font-size: 60px;
-      width: 50px;
+      width: 100px;
       text-align: center;
     }
 
@@ -76,7 +76,15 @@
     <!-- Letter Input Section -->
     <div id="letter-input-section" style="width: 100%;">
       <p id="word-display" style="color:#030201; font-size: 60px; letter-spacing: 8px;">_ _ _ _ _</p>
-      <input id="letter-input" type="text" maxlength="1" style="color:#000000; font-size: 60px; width: 150px; text-align: center;" />
+      <div class="input-container">
+        <input 
+          type="text" 
+          class="answer-input" 
+          id="letter-input" 
+          placeholder="Here"
+          autocomplete="on"
+        />
+      </div>
       <p id="message" style="color: hwb(0 0% 100%); font-size: 32px;"></p>
     </div>
 
@@ -92,213 +100,103 @@
   autoplay
   loop
   muted
+  style="float: right;"
 ></audio>
 
   <script>
-    // const words = ["developer", "comedian"];
-    const words = ["javascript", "leaderboard"]
-    let selectedWord = words[Math.floor(Math.random() * words.length)];
-    let guessedWord = Array(selectedWord.length).fill("_");
-    let mistakes = 0;
+  const words = ["javascript", "leaderboard", "hangman", "developer", "comedian", "puzzles"];
+  const selectedWord = words[Math.floor(Math.random() * words.length)];
+  let guessedWord = Array(selectedWord.length).fill("_");
+  let mistakes = 0;
+  const maxMistakes = 6;
+  const inputHistory = [];
 
-    const wordDisplay = document.getElementById("word-display");
-    const letterInput = document.getElementById("letter-input");
-    const message = document.getElementById("message");
-    const hangmanImage = document.getElementById("hangman-image");
+  const wordDisplay = document.getElementById("word-display");
+  const letterInput = document.getElementById("letter-input");
+  const message = document.getElementById("message");
+  const hangmanImage = document.getElementById("hangman-image");
 
-    wordDisplay.textContent = guessedWord.join(" ");
+  /* ---------- UI ---------- */
 
-    // Update word display to allow clicking on underscores
-    function updateWordDisplay() {
-      wordDisplay.innerHTML = guessedWord
-        .map((char, index) =>
-          char === "_"
-            ? `<span data-index="${index}" style="color:black;">_</span>`
-            : `<span>${char}</span>`
-        )
-        .join(" ");
+  function updateWordDisplay() {
+    wordDisplay.innerHTML = guessedWord
+      .map((char, i) =>
+        char === "_"
+          ? `<span data-index="${i}" style="color:black; cursor:pointer;">_</span>`
+          : `<span>${char}</span>`
+      )
+      .join(" ");
 
-      document.querySelectorAll("#word-display span[data-index]").forEach((span) => {
-        span.addEventListener("click", () => {
-          letterInput.focus();
-        });
-      });
-    }
+    document
+      .querySelectorAll("#word-display span[data-index]")
+      .forEach(span => span.addEventListener("click", () => letterInput.focus()));
+  }
 
-    // Initial call to update word display
-    updateWordDisplay();
+  function updateHangmanImage() {
+    hangmanImage.src = `assets/mooman/${mistakes}@0.5x.png`;
+    // hangmanImage.style.width = mistakes === 5 ? "360px" : "200px";
+    hangmanImage.style.height = "auto";
+  }
 
-    let inputHistory = [];
-    
-    letterInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        const letter = letterInput.value.toLowerCase();
-        letterInput.value = "";
-        message.textContent = "";
+  updateWordDisplay();
 
-        if (!letter || letter.length !== 1 || !/[a-z]/.test(letter)) {
-          message.textContent = "Please enter a valid letter.";
-          return;
-        }
+  function isValidLetter(letter) {
+    return /^[a-z]$/.test(letter);
+  }
 
-        if (selectedWord.includes(letter)) {
-          for (let i = 0; i < selectedWord.length; i++) {
-            if (selectedWord[i] === letter) {
-              guessedWord[i] = letter;
-            }
-          }
-
-          if (!guessedWord.includes("_")) {
-            message.style.color = "white";
-            message.textContent = "Congratulations! You won!";
-            letterInput.disabled = true;
-          }
-        } else {
-          mistakes++;
-          hangmanImage.src = `assets/mooman/${mistakes}@0.5x.png`;
-
-          if (mistakes === 6) {
-            message.style.color = "white";
-            message.textContent = `Game over! The word was: ${selectedWord}`;
-            letterInput.disabled = true;
-          }
-        }
-
-        updateWordDisplay();
-      }
+  function revealLetter(letter) {
+    selectedWord.split("").forEach((char, i) => {
+      if (char === letter) guessedWord[i] = letter;
     });
+  }
 
-    // Dynamically adjust the size of each hangman image based on the mistake count
-    const imageSizes = [
-        { maxWidth: "200px" },
-        { maxWidth: "200px" },
-        { maxWidth: "200px" },
-        { maxWidth: "200px" },
-        { maxWidth: "200px" },
-        { maxWidth: "360px" },
-        ];
+  function checkWin() {
+    return !guessedWord.includes("_");
+  }
 
-    function updateHangmanImage() {
-        hangmanImage.src = `assets/mooman/${mistakes}@0.5x.png`;
-        const size = imageSizes[mistakes];
-        hangmanImage.style.width = imageSizes[mistakes + 1].maxWidth;
-        hangmanImage.style.height = "auto"; 
-        }
+  function checkEasterEgg() {
+    if (inputHistory.slice(0, 4).join("") === "emoo") {
+      message.textContent = "Life lesson: don't use the same trick twice.";
+    }
+  }
 
-    // Update the image and size whenever a mistake is made
-    letterInput.addEventListener("keydown", (event) => {
-        if (event.key !== "Enter") return;
-
-        const letter = letterInput.value.toLowerCase();
-        letterInput.value = "";
-        message.textContent = "";
-        
-        // 记录输入
-        inputHistory.push(letter);
-
-        if (!letter || letter.length !== 1 || !/[a-z]/.test(letter)) {
-            message.textContent = "Please enter a valid letter.";
-            return;
-        }
-
-        // 👉 规则 1：重复输入检测
-        if (inputHistory.includes(letter)) {
-            message.style.color = "black";
-            message.textContent = "you should improve your memory";
-            return;
-        }
-
-
-        // 👉 规则 2：彩蛋 emoo
-        if (inputHistory.length >= 4) {
-            const firstFour = inputHistory.slice(0, 4).join("");
-            if (firstFour === "emoo") {
-            message.style.color = "black";
-            message.textContent = "Life lesson: don't use same trick for twice";
-            }
-        }
-
-        // 正常游戏逻辑
-        if (selectedWord.includes(letter)) {
-            for (let i = 0; i < selectedWord.length; i++) {
-            if (selectedWord[i] === letter) {
-                guessedWord[i] = letter;
-            }
-            }
-
-            if (!guessedWord.includes("_")) {
-            message.style.color = "black";
-            message.textContent = "congrats my dear friend, beat 100% visitors.";
-            letterInput.disabled = true;
-            }
-        } else {
-            mistakes++;
-            updateHangmanImage();
-
-            if (mistakes === 6) {
-            message.style.color = "black";
-            message.textContent = `Game over! The word was: ${selectedWord}`;
-            letterInput.disabled = true;
-            }
-        }
-
-        updateWordDisplay();
-        });
-
-  // Fix message updates for different cases
-  letterInput.addEventListener("keydown", (event) => {
-    if (event.key !== "Enter") return;
+  letterInput.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
 
     const letter = letterInput.value.toLowerCase();
     letterInput.value = "";
     message.textContent = "";
 
-    // Rule 1: Check for repeated input
+    if (!isValidLetter(letter)) {
+      message.textContent = "Please enter a valid letter.";
+      return;
+    }
+
     if (inputHistory.includes(letter)) {
-      message.style.color = "black";
-      message.textContent = "You already tried this letter. Try another one!";
+      message.textContent = "You already tried this letter.";
       return;
     }
 
     inputHistory.push(letter);
+    checkEasterEgg();
 
-    // Rule 2: Easter egg for "emoo"
-    if (inputHistory.length >= 4) {
-      const firstFour = inputHistory.slice(0, 4).join("");
-      if (firstFour === "emoo") {
-        message.style.color = "black";
-        message.textContent = "Life lesson: don't use the same trick twice.";
-      }
-    }
-
-    // Normal game logic
     if (selectedWord.includes(letter)) {
-      for (let i = 0; i < selectedWord.length; i++) {
-        if (selectedWord[i] === letter) {
-          guessedWord[i] = letter;
-        }
-      }
+      revealLetter(letter);
 
-      if (!guessedWord.includes("_")) {
-        message.style.color = "white";
-        message.textContent = "Congratulations! You won!";
+      if (checkWin()) {
+        message.textContent = "Congrats my dear friend, beat 100% visitors.";
         letterInput.disabled = true;
       }
     } else {
       mistakes++;
+      updateHangmanImage();
 
-      if (mistakes === 6) {
-        hangmanImage.style.display = "none"; // Hide the image
-        message.style.color = "white";
-        message.textContent = "Beauty, humour and intelligence";
+      if (mistakes >= maxMistakes) {
+        message.textContent = `Game over! The word was: ${selectedWord}`;
         letterInput.disabled = true;
-      } else {
-        updateHangmanImage();
       }
     }
 
     updateWordDisplay();
   });
-  </script>
-</body>
-</html>
+</script>
