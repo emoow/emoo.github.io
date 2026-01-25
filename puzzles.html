@@ -30,7 +30,7 @@
       border: none;
       background: none;
       outline: none;
-      color: antiquewhite;
+      color: #0b0803;
       font-size: 60px;
       width: 50px;
       text-align: center;
@@ -41,11 +41,11 @@
     }
 
     body {
-      background: linear-gradient(135deg, #a259e6 0%, #258317 100%);
+      background: linear-gradient(135deg, #b2b2b2 0%, hsl(0, 0%, 100%) 100%);
     }
   </style>
 </head>
-<body>
+<body style="max-height:100vh; overflow:hidden;">
   <div class="background-light"></div>
 
   
@@ -74,20 +74,29 @@
 
   <div id="hangman-game" style="display: flex; justify-content: space-between; align-items: center; margin-top: 200px; margin-left:50px;">
     <!-- Letter Input Section -->
-    <div id="letter-input-section" style="width: 40%;">
-      <p id="word-display" style="color:antiquewhite; font-size: 60px; letter-spacing: 8px;">_ _ _ _ _</p>
-      <input id="letter-input" type="text" maxlength="1" style="color:antiquewhite; font-size: 60px; width: 150px; text-align: center;" />
-      <p id="message" style="color: hsl(107, 84%, 30%); font-size: 32px;"></p>
+    <div id="letter-input-section" style="width: 100%;">
+      <p id="word-display" style="color:#030201; font-size: 60px; letter-spacing: 8px;">_ _ _ _ _</p>
+      <input id="letter-input" type="text" maxlength="1" style="color:#000000; font-size: 60px; width: 150px; text-align: center;" />
+      <p id="message" style="color: hwb(0 0% 100%); font-size: 32px;"></p>
     </div>
 
     <!-- Hangman Image Section -->
     <div id="hangman-image-section" style="width: 15%; text-align: center;">
-      <img id="hangman-image" src="assets/mov1.png" alt="Hangman" style="width: 100%; max-width: 200px; height: auto;" />
+      <img id="hangman-image" src="assets/mooman/0@0.5x.png" alt="Hangman" style="width: 100%; max-width: 400px; height: auto; padding-bottom: 200px;" />
     </div>
   </div>
 
+  <audio
+  src="assets/puzzle_music.mp3"
+  controls
+  autoplay
+  loop
+  muted
+></audio>
+
   <script>
-    const words = ["developer", "comedian"];
+    // const words = ["developer", "comedian"];
+    const words = ["javascript", "leaderboard"]
     let selectedWord = words[Math.floor(Math.random() * words.length)];
     let guessedWord = Array(selectedWord.length).fill("_");
     let mistakes = 0;
@@ -104,7 +113,7 @@
       wordDisplay.innerHTML = guessedWord
         .map((char, index) =>
           char === "_"
-            ? `<span data-index="${index}" style="color:antiquewhite;">_</span>`
+            ? `<span data-index="${index}" style="color:black;">_</span>`
             : `<span>${char}</span>`
         )
         .join(" ");
@@ -146,7 +155,7 @@
           }
         } else {
           mistakes++;
-          hangmanImage.src = `assets/mov${mistakes + 1}.png`;
+          hangmanImage.src = `assets/mooman/${mistakes}@0.5x.png`;
 
           if (mistakes === 6) {
             message.style.color = "white";
@@ -170,7 +179,7 @@
         ];
 
     function updateHangmanImage() {
-        hangmanImage.src = `assets/mov${mistakes + 1}.png`;
+        hangmanImage.src = `assets/mooman/${mistakes}@0.5x.png`;
         const size = imageSizes[mistakes];
         hangmanImage.style.width = imageSizes[mistakes + 1].maxWidth;
         hangmanImage.style.height = "auto"; 
@@ -194,7 +203,7 @@
 
         // 👉 规则 1：重复输入检测
         if (inputHistory.includes(letter)) {
-            message.style.color = "white";
+            message.style.color = "black";
             message.textContent = "you should improve your memory";
             return;
         }
@@ -204,7 +213,7 @@
         if (inputHistory.length >= 4) {
             const firstFour = inputHistory.slice(0, 4).join("");
             if (firstFour === "emoo") {
-            message.style.color = "white";
+            message.style.color = "black";
             message.textContent = "Life lesson: don't use same trick for twice";
             }
         }
@@ -218,7 +227,7 @@
             }
 
             if (!guessedWord.includes("_")) {
-            message.style.color = "white";
+            message.style.color = "black";
             message.textContent = "congrats my dear friend, beat 100% visitors.";
             letterInput.disabled = true;
             }
@@ -227,7 +236,7 @@
             updateHangmanImage();
 
             if (mistakes === 6) {
-            message.style.color = "white";
+            message.style.color = "black";
             message.textContent = `Game over! The word was: ${selectedWord}`;
             letterInput.disabled = true;
             }
@@ -246,7 +255,7 @@
 
     // Rule 1: Check for repeated input
     if (inputHistory.includes(letter)) {
-      message.style.color = "white";
+      message.style.color = "black";
       message.textContent = "You already tried this letter. Try another one!";
       return;
     }
@@ -257,7 +266,7 @@
     if (inputHistory.length >= 4) {
       const firstFour = inputHistory.slice(0, 4).join("");
       if (firstFour === "emoo") {
-        message.style.color = "white";
+        message.style.color = "black";
         message.textContent = "Life lesson: don't use the same trick twice.";
       }
     }
