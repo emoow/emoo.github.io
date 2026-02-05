@@ -169,47 +169,25 @@
         scene.add(rightWall);
 
         // Website data with screenshots
+        // Each entry needs: name, url, and screenshot (image path)
+        // Add your own screenshots to assets/website/ folder
         const websites = [
             { 
                 name: 'kimi AI',
                 url: 'https://kimi.com',
-                screenshot: 'assets/website/kimi.png' // Will be filled by user uploads or placeholders
+                screenshot: 'assets/website/kimi.png'
             },
             { 
                 name: 'Emoo WordPress',
                 url: 'https://emoo581.wordpress.com/',
                 screenshot: 'assets/website/emoo581.jpg'
-            },
+            }
+            // Add more websites here with their screenshots:
             // { 
             //     name: 'GitHub',
             //     url: 'https://github.com',
-            //     screenshot: null
+            //     screenshot: 'assets/website/github.png'
             // },
-            // { 
-            //     name: 'Stack Overflow',
-            //     url: 'https://stackoverflow.com',
-            //     screenshot: null
-            // },
-            // { 
-            //     name: 'Wikipedia',
-            //     url: 'https://wikipedia.org',
-            //     screenshot: null
-            // },
-            // { 
-            //     name: 'arXiv',
-            //     url: 'https://arxiv.org',
-            //     screenshot: null
-            // },
-            // { 
-            //     name: 'Hacker News',
-            //     url: 'https://news.ycombinator.com',
-            //     screenshot: null
-            // },
-            // { 
-            //     name: 'Medium',
-            //     url: 'https://medium.com',
-            //     screenshot: null
-            // }
         ];
 
         // Store frame meshes for updating
@@ -333,28 +311,39 @@
             scene.add(frameGroup);
         }
 
-        // Place art on both sides of corridor
+        // Place art on both sides of corridor - only create frames for available websites
         const spacing = 5;
-        for (let i = 0; i < 8; i++) {
+        const totalWebsites = websites.length;
+        
+        // Calculate how many frames we need on each side
+        const framesPerSide = Math.ceil(totalWebsites / 2);
+        
+        for (let i = 0; i < framesPerSide; i++) {
             const z = -corridorLength / 2 + spacing + i * spacing;
             
-            // Left wall art
-            createArtFrame(
-                websites[i % websites.length],
-                -corridorWidth / 2 + 0.1,
-                z,
-                Math.PI / 2,
-                i
-            );
+            // Left wall art - use even indices (0, 2, 4...)
+            const leftIndex = i * 2;
+            if (leftIndex < totalWebsites) {
+                createArtFrame(
+                    websites[leftIndex],
+                    -corridorWidth / 2 + 0.1,
+                    z,
+                    Math.PI / 2,
+                    leftIndex
+                );
+            }
             
-            // Right wall art
-            createArtFrame(
-                websites[(i + 4) % websites.length],
-                corridorWidth / 2 - 0.1,
-                z,
-                -Math.PI / 2,
-                i + 8
-            );
+            // Right wall art - use odd indices (1, 3, 5...)
+            const rightIndex = i * 2 + 1;
+            if (rightIndex < totalWebsites) {
+                createArtFrame(
+                    websites[rightIndex],
+                    corridorWidth / 2 - 0.1,
+                    z,
+                    -Math.PI / 2,
+                    rightIndex
+                );
+            }
         }
 
         // Lighting
