@@ -229,28 +229,34 @@
             const frameWidth = 2.4;  // Wider like a monitor
             const frameHeight = 1.35; // 16:9 ratio
             
-            // Create texture (placeholder or uploaded image)
-            let texture;
-            if (websiteData.screenshot) {
-                texture = textureLoader.load(
-                    websiteData.screenshot,
-                    undefined,
-                    undefined,
-                    () => {
-                        texture = createPlaceholderTexture(websiteData);
-                    }
-                );
-            } else {
-                texture = createPlaceholderTexture(websiteData);
-            }
-
             // Canvas (the screen)
             const canvasGeometry = new THREE.PlaneGeometry(frameWidth, frameHeight);
             const canvasMaterial = new THREE.MeshStandardMaterial({
-                map: texture,
                 roughness: 0.3,
                 metalness: 0.1
             });
+
+            // Load texture (screenshot or placeholder)
+            if (websiteData.screenshot) {
+                textureLoader.load(
+                    websiteData.screenshot,
+                    // Success callback
+                    (loadedTexture) => {
+                        canvasMaterial.map = loadedTexture;
+                        canvasMaterial.needsUpdate = true;
+                    },
+                    // Progress callback
+                    undefined,
+                    // Error callback - use placeholder on failure
+                    (error) => {
+                        console.warn('Failed to load image:', websiteData.screenshot, error);
+                        canvasMaterial.map = createPlaceholderTexture(websiteData);
+                        canvasMaterial.needsUpdate = true;
+                    }
+                );
+            } else {
+                canvasMaterial.map = createPlaceholderTexture(websiteData);
+            }
             
             const canvas = new THREE.Mesh(canvasGeometry, canvasMaterial);
             canvas.castShadow = true;
