@@ -8,55 +8,202 @@
   <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
-    .info-page {
-      opacity: 0;
-      transition: opacity 1s ease-in;
-      /* keep display: flex or block as needed */
-    }
-    .info-page.active {
-      opacity: 1;
-    }
-
-    #hangman-image-section img {
-      position: absolute;
-      bottom: 10%;
-      right: 5%;
-      transform: none;
-      width: 50%;
-      max-width: 200px;
+    body {
+      background-color: #fdfbf3;
+      background-image: url('assets/rice-paper-3.png');
+      background-repeat: repeat;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    #letter-input {
-      border: none;
-      background: none;
-      outline: none;
-      color: #0b0803;
-      font-size: 60px;
-      width: 100px;
+    #game-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 700px;
+      padding: 30px 16px 20px;
+      gap: 18px;
+    }
+
+    /* ── Title ── */
+    #game-title {
+      font-family: 'Diary', cursive;
+      font-size: 2.4rem;
+      letter-spacing: 4px;
+      color: #1a1a1a;
       text-align: center;
     }
 
-    #word-display span {
-      cursor: pointer;
+    /* ── Hangman image ── */
+    #hangman-image {
+      width: 140px;
+      height: auto;
+      display: block;
     }
 
-    body {
-      background: linear-gradient(135deg, #b2b2b2 0%, hsl(0, 0%, 100%) 100%);
+    /* ── Word display ── */
+    #word-display {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .letter-tile {
+      width: 44px;
+      height: 52px;
+      border-bottom: 3px solid #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Diary', cursive;
+      font-size: 1.8rem;
+      color: #1a1a1a;
+      text-transform: uppercase;
+    }
+
+    /* ── Current letter preview ── */
+    #current-letter-display {
+      font-family: 'Diary', cursive;
+      font-size: 3.5rem;
+      color: #1a1a1a;
+      min-height: 60px;
+      letter-spacing: 2px;
+      text-align: center;
+    }
+
+    /* ── Message ── */
+    #message {
+      font-family: 'Diary', cursive;
+      font-size: 1.1rem;
+      color: #1a1a1a;
+      min-height: 28px;
+      text-align: center;
+    }
+
+    /* ── On-screen keyboard ── */
+    #keyboard {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .key-row {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+    }
+
+    .key {
+      font-family: 'Diary', cursive;
+      font-size: 1rem;
+      width: 36px;
+      height: 44px;
+      border: 2px solid #1a1a1a;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+      transition: background 0.15s, transform 0.1s;
+      user-select: none;
+      color: #1a1a1a;
+    }
+
+    .key:hover:not(.used-correct):not(.used-wrong):not(.selected) {
+      background: rgba(200, 200, 200, 0.8);
+      transform: scale(1.08);
+    }
+
+    .key.selected {
+      background: #f5e642;
+      border-color: #b8a800;
+      transform: scale(1.12);
+    }
+
+    .key.used-correct {
+      background: #6aaa64;
+      border-color: #538d4e;
+      color: #fff;
+      cursor: default;
+    }
+
+    .key.used-wrong {
+      background: #787c7e;
+      border-color: #555;
+      color: #fff;
+      cursor: default;
+    }
+
+    .key-enter {
+      width: 64px;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
+
+    /* ── Audio ── */
+    #audio-player {
+      margin-top: 4px;
+    }
+
+    /* ── Hidden real input (captures physical keyboard) ── */
+    #hidden-input {
+      position: fixed;
+      opacity: 0;
+      pointer-events: none;
+      width: 1px;
+      height: 1px;
     }
   </style>
 </head>
-<body style="max-height:100vh; overflow:hidden;">
+<body>
   <div class="background-light"></div>
-
-  
-  <!-- Bubble Container -->
-  <div id="bubbleContainer" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:10; pointer-events:none;"></div>
-  <!-- Bubble Canvas (background only, not interactive) -->
-  <canvas id="bubbleCanvas" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:2; pointer-events:none;"></canvas>
-
+  <div id="bubbleContainer" style="position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:10;pointer-events:none;"></div>
+  <canvas id="bubbleCanvas" style="position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:2;pointer-events:none;"></canvas>
   <script src="bubbles.js"></script>
-  <script>
 
+  <!-- Hidden input to capture physical keyboard -->
+  <input id="hidden-input" type="text" autocomplete="off" aria-hidden="true" />
+
+  <div id="game-wrapper">
+
+    <div id="game-title">Hangman</div>
+
+    <!-- Hangman animation -->
+    < img id="hangman-image" src="assets/mooman/0@0.5x.png" alt="Hangman" />
+
+    <!-- Word blanks -->
+    <div id="word-display"></div>
+
+    <!-- Current candidate letter -->
+    <div id="current-letter-display">&nbsp;</div>
+
+    <!-- Status message -->
+    <div id="message"></div>
+
+    <!-- On-screen keyboard -->
+    <div id="keyboard">
+      <div class="key-row" id="row-1"></div>
+      <div class="key-row" id="row-2"></div>
+      <div class="key-row" id="row-3"></div>
+    </div>
+
+    <!-- Audio -->
+    <audio id="audio-player" src="assets/puzzle_music.mp3" controls autoplay loop muted></audio>
+
+  </div>
+
+  <script>
+    /* ── Console easter egg ── */
     console.log(`     _______________________
     < I am not Charlotte... >
      -----------------------
@@ -65,138 +212,171 @@
              //(__)\\\\
             ||      ||`);
 
-    window.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('infoPage').classList.add('active'); // slight delay to ensure transition
-    });
+    /* ── Game state ── */
+    const words = ["javascript", "leaderboard", "hangman", "developer", "comedian", "puzzles"];
+    const selectedWord = words[Math.floor(Math.random() * words.length)];
+    let guessedWord = Array(selectedWord.length).fill("_");
+    let mistakes = 0;
+    const maxMistakes = 6;
+    const usedLetters = new Set();
+    let currentLetter = "";
+    let gameOver = false;
 
+    /* ── DOM refs ── */
+    const wordDisplay      = document.getElementById("word-display");
+    const currentDisplay   = document.getElementById("current-letter-display");
+    const message          = document.getElementById("message");
+    const hangmanImage     = document.getElementById("hangman-image");
+    const hiddenInput      = document.getElementById("hidden-input");
 
-  </script>
+    /* ── Keyboard layout ── */
+    const rows = [
+      ["q","w","e","r","t","y","u","i","o","p"],
+      ["a","s","d","f","g","h","j","k","l"],
+      ["z","x","c","v","b","n","m","ENTER"]
+    ];
 
-  <div id="hangman-game" style="display: flex; justify-content: space-between; align-items: center; margin-top: 200px; margin-left:50px;">
-    <!-- Letter Input Section -->
-    <div id="letter-input-section" style="width: 100%;">
-      <p id="word-display" style="color:#030201; font-size: 60px; letter-spacing: 8px;"></p>
-      <div class="input-container">
-        <input 
-          type="text" 
-          class="answer-input" 
-          id="letter-input" 
-          placeholder="Here"
-          autocomplete="on"
-        />
-      </div>
-      <p id="message" style="color: hwb(0 0% 100%); font-size: 32px;"></p>
-    </div>
-
-    <!-- Hangman Image Section -->
-    <div id="hangman-image-section" style="width: 15%; text-align: center;">
-      <img id="hangman-image" src="assets/mooman/0@0.5x.png" alt="Hangman" style="width: 100%; max-width: 400px; height: auto; padding-bottom: 200px;" />
-    </div>
-  </div>
-
-  <audio
-  src="assets/puzzle_music.mp3"
-  controls
-  autoplay
-  loop
-  muted
-  style="float: down;"
-></audio>
-
-  <script>
-  const words = ["javascript", "leaderboard", "hangman", "developer", "comedian", "puzzles"];
-  const selectedWord = words[Math.floor(Math.random() * words.length)];
-  let guessedWord = Array(selectedWord.length).fill("_");
-  let mistakes = 0;
-  const maxMistakes = 6;
-  const inputHistory = [];
-
-  const wordDisplay = document.getElementById("word-display");
-  const letterInput = document.getElementById("letter-input");
-  const message = document.getElementById("message");
-  const hangmanImage = document.getElementById("hangman-image");
-
-  /* ---------- UI ---------- */
-
-  function updateWordDisplay() {
-    wordDisplay.innerHTML = guessedWord
-      .map((char, i) =>
-        char === "_"
-          ? `<span data-index="${i}" style="color:black; cursor:pointer;">_</span>`
-          : `<span>${char}</span>`
-      )
-      .join(" ");
-
-    document
-      .querySelectorAll("#word-display span[data-index]")
-      .forEach(span => span.addEventListener("click", () => letterInput.focus()));
-  }
-
-  function updateHangmanImage() {
-    hangmanImage.src = `assets/mooman/${mistakes}@0.5x.png`;
-    // hangmanImage.style.width = mistakes === 5 ? "360px" : "200px";
-    hangmanImage.style.height = "auto";
-  }
-
-  updateWordDisplay();
-
-  function isValidLetter(letter) {
-    return /^[a-z]$/.test(letter);
-  }
-
-  function revealLetter(letter) {
-    selectedWord.split("").forEach((char, i) => {
-      if (char === letter) guessedWord[i] = letter;
-    });
-  }
-
-  function checkWin() {
-    return !guessedWord.includes("_");
-  }
-
-  function checkEasterEgg() {
-    if (inputHistory.slice(0, 4).join("") === "emoo") {
-      message.textContent = "Life lesson: don't use the same trick twice.";
-    }
-  }
-
-  letterInput.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter") return;
-
-    const letter = letterInput.value.toLowerCase();
-    letterInput.value = "";
-    message.textContent = "";
-
-    if (!isValidLetter(letter)) {
-      message.textContent = "Please enter a valid letter.";
-      return;
+    function buildKeyboard() {
+      rows.forEach((letters, i) => {
+        const row = document.getElementById(`row-${i + 1}`);
+        letters.forEach(letter => {
+          const btn = document.createElement("button");
+          btn.textContent = letter.toUpperCase();
+          btn.classList.add("key");
+          if (letter === "ENTER") btn.classList.add("key-enter");
+          btn.dataset.letter = letter;
+          btn.addEventListener("click", () => handleKeyPress(letter));
+          row.appendChild(btn);
+        });
+      });
     }
 
-    if (inputHistory.includes(letter)) {
-      message.textContent = "You already tried this letter.";
-      return;
+    function getKeyEl(letter) {
+      return document.querySelector(`.key[data-letter="${letter.toLowerCase()}"]`);
     }
 
-    inputHistory.push(letter);
-    checkEasterEgg();
+    /* ── Word display ── */
+    function updateWordDisplay() {
+      wordDisplay.innerHTML = "";
+      guessedWord.forEach(char => {
+        const tile = document.createElement("div");
+        tile.classList.add("letter-tile");
+        tile.textContent = char === "_" ? "" : char.toUpperCase();
+        wordDisplay.appendChild(tile);
+      });
+    }
 
-    if (selectedWord.includes(letter)) {
-      revealLetter(letter);
+    /* ── Hangman image ── */
+    function updateHangmanImage() {
+      hangmanImage.src = `assets/mooman/${mistakes}@0.5x.png`;
+    }
 
-      if (checkWin()) {
-        message.textContent = "Congrats my dear friend, beat 100% visitors.";
-        letterInput.disabled = true;
-      }
-    } else {
-      mistakes++;
-      updateHangmanImage();
+    /* ── Core logic ── */
+    function revealLetter(letter) {
+      selectedWord.split("").forEach((char, i) => {
+        if (char === letter) guessedWord[i] = letter;
+      });
+    }
 
-      if (mistakes >= maxMistakes) {
-        message.textContent = `Game over! The word was: ${selectedWord}`;
-        letterInput.disabled = true;
+    function checkWin() {
+      return !guessedWord.includes("_");
+    }
+
+    function checkEasterEgg(history) {
+      if (history.slice(0, 4).join("") === "emoo") {
+        message.textContent = "Life lesson: don't use the same trick twice.";
       }
     }
 
+    /* ── Handle a letter being selected (not yet submitted) ── */
+    function selectLetter(letter) {
+      if (gameOver) return;
+      if (letter === "enter") { submitLetter(); return; }
+      if (!/^[a-z]$/.test(letter)) return;
+
+      // Deselect previous
+      if (currentLetter) {
+        const prev = getKeyEl(currentLetter);
+        if (prev && !usedLetters.has(currentLetter)) prev.classList.remove("selected");
+      }
+
+      currentLetter = letter;
+      currentDisplay.textContent = letter.toUpperCase();
+
+      const btn = getKeyEl(letter);
+      if (btn && !usedLetters.has(letter)) btn.classList.add("selected");
+    }
+
+    /* ── Submit the current letter ── */
+    function submitLetter() {
+      if (gameOver || !currentLetter) return;
+
+      const letter = currentLetter;
+      message.textContent = "";
+
+      if (usedLetters.has(letter)) {
+        message.textContent = "Already tried that letter.";
+        return;
+      }
+
+      usedLetters.add(letter);
+      const btn = getKeyEl(letter);
+
+      // Deselect
+      if (btn) btn.classList.remove("selected");
+      currentLetter = "";
+      currentDisplay.innerHTML = "&nbsp;";
+
+      checkEasterEgg([...usedLetters]);
+
+      if (selectedWord.includes(letter)) {
+        revealLetter(letter);
+        if (btn) btn.classList.add("used-correct");
+
+        if (checkWin()) {
+          message.textContent = "Congrats my dear friend, beat 100% of visitors.";
+          gameOver = true;
+        }
+      } else {
+        mistakes++;
+        updateHangmanImage();
+        if (btn) btn.classList.add("used-wrong");
+
+        if (mistakes >= maxMistakes) {
+          message.innerHTML = `Game over! The word was: ${selectedWord.toUpperCase()}. <a href="" style="color:#1a1a1a;">Try again?</a >`;
+          gameOver = true;
+        }
+      }
+
+      updateWordDisplay();
+    }
+
+    /* ── Unified key handler (on-screen + physical) ── */
+    function handleKeyPress(key) {
+      const k = key.toLowerCase();
+      if (k === "enter") {
+        submitLetter();
+      } else if (/^[a-z]$/.test(k)) {
+        selectLetter(k);
+      }
+    }
+
+    /* ── Physical keyboard ── */
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        handleKeyPress("enter");
+      } else if (/^[a-zA-Z]$/.test(e.key)) {
+        handleKeyPress(e.key.toLowerCase());
+      }
+    });
+
+    /* ── Keep hidden input focused so physical keyboard always works ── */
+    document.addEventListener("click", () => hiddenInput.focus());
+    hiddenInput.focus();
+
+    /* ── Init ── */
+    buildKeyboard();
     updateWordDisplay();
-  });
-</script>
+  </script>
+</body>
+</html>
