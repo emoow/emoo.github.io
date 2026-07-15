@@ -8,7 +8,8 @@
         body {
             margin: 0;
             overflow: hidden;
-            font-family: Arial, sans-serif;
+            font-family: "Trebuchet MS", Arial, sans-serif;
+            background: #090711;
         }
         #canvas-container {
             width: 100vw;
@@ -61,12 +62,18 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            color: white;
-            background: rgba(0, 0, 0, 0.7);
+            max-width: min(340px, calc(100vw - 40px));
+            color: #dfff72;
+            background:
+                linear-gradient(135deg, rgba(19, 13, 31, 0.92), rgba(4, 24, 26, 0.88));
             padding: 15px;
             border-radius: 8px;
+            border: 2px solid rgba(157, 255, 58, 0.52);
             font-size: 14px;
             z-index: 1000;
+            line-height: 1.45;
+            box-shadow: 0 0 20px rgba(105, 255, 47, 0.24);
+            text-shadow: 0 0 7px rgba(189, 255, 64, 0.72);
         }
         #upload-section {
             position: absolute;
@@ -77,6 +84,11 @@
             border-radius: 8px;
             z-index: 1000;
             color: white;
+        }
+        @media (max-width: 720px) {
+            #info {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -99,10 +111,11 @@
     <script>
         // Scene setup
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a1a);
-        scene.fog = new THREE.Fog(0x1a1a1a, 1, 50);
+        scene.background = new THREE.Color(0x090711);
+        scene.fog = new THREE.Fog(0x190c2f, 2, 46);
 
         const textureLoader = new THREE.TextureLoader();
+        const animatedObjects = [];
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 1.6, 0);
@@ -122,18 +135,23 @@
         let turnSpeed = 0.05;
         let targetRotation = 0;
         let currentRotation = 0;
+        let portalExitTriggered = false;
 
         // Create corridor
         const corridorLength = 40;
         const corridorWidth = 6;
         const corridorHeight = 4;
+        const portalExitPosition = new THREE.Vector3(0, 1.6, -18.8);
+        const portalExitRadius = 1.35;
 
         // Floor
         const floorGeometry = new THREE.PlaneGeometry(corridorWidth, corridorLength);
         const floorMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x2c2c2c,
-            roughness: 0.8,
-            metalness: 0.2
+            color: 0x171323,
+            roughness: 0.72,
+            metalness: 0.18,
+            emissive: 0x13071e,
+            emissiveIntensity: 0.22
         });
         const floor = new THREE.Mesh(floorGeometry, floorMaterial);
         floor.rotation.x = -Math.PI / 2;
@@ -149,8 +167,10 @@
         // Walls
         const wallGeometry = new THREE.PlaneGeometry(corridorLength, corridorHeight);
         const wallMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x3d3d3d,
-            roughness: 0.7
+            color: 0x241735,
+            roughness: 0.82,
+            emissive: 0x12051c,
+            emissiveIntensity: 0.18
         });
 
         // Left wall
@@ -302,7 +322,7 @@
             frameBorder.castShadow = true;
             frameGroup.add(frameBorder);
 
-            // LED strip effect (subtle glow at bottom)
+            // LED strip effect
             const ledGeometry = new THREE.PlaneGeometry(frameWidth + 0.08, 0.02);
             const ledMaterial = new THREE.MeshBasicMaterial({ 
                 color: 0x3498db,
@@ -326,6 +346,77 @@
             frameGroup.position.set(posX, corridorHeight / 2, posZ);
             frameGroup.rotation.y = rotation;
             scene.add(frameGroup);
+        }
+
+        function createPortal(position, scale, rotationY) {
+            const portalGroup = new THREE.Group();
+            const portalMaterial = new THREE.MeshBasicMaterial({
+                map: textureLoader.load('assets/website/portal-rnm-style.png'),
+                transparent: true,
+                opacity: 0.92,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            });
+            const portal = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), portalMaterial);
+            portalGroup.add(portal);
+
+            portalGroup.position.copy(position);
+            portalGroup.scale.setScalar(scale);
+            portalGroup.rotation.y = rotationY;
+            scene.add(portalGroup);
+            animatedObjects.push({
+                mesh: portalGroup,
+                baseScale: scale,
+                scalePulse: 0.035,
+                material: portalMaterial,
+                baseOpacity: 0.75,
+                pulseSpeed: 1.8,
+                pulseOffset: position.z
+            });
+        }
+
+        function createNeonTube(x, y, z, length, color) {
+            const group = new THREE.Group();
+            const tube = new THREE.Mesh(
+                new THREE.BoxGeometry(0.08, 0.08, length),
+                new THREE.MeshBasicMaterial({ color })
+            );
+            group.add(tube);
+            group.position.set(x, y, z);
+            scene.add(group);
+        }
+
+        function createStars() {
+            const starGeometry = new THREE.BufferGeometry();
+            const positions = [];
+            for (let i = 0; i < 380; i++) {
+                positions.push(
+                    (Math.random() - 0.5) * 36,
+                    Math.random() * 11 - 1,
+                    (Math.random() - 0.5) * 58
+                );
+            }
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xdfff72,
+                size: 0.045,
+                transparent: true,
+                opacity: 0.72
+            });
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+            animatedObjects.push({ mesh: stars, rotateY: 0.0007 });
+        }
+
+        function addSciFiDecorations() {
+            createStars();
+            createPortal(new THREE.Vector3(0, 2.05, -19.65), 1.1, 0);
+
+            for (let z = -17; z <= 17; z += 5.2) {
+                createNeonTube(-2.86, 0.08, z, 2.1, 0x8cff2f);
+                createNeonTube(2.86, 0.08, z + 2.4, 1.8, 0xc04dff);
+                createNeonTube(0, corridorHeight - 0.08, z + 1.4, 2.2, z % 2 ? 0x64ffe8 : 0xbaff32);
+            }
         }
 
         // Place art on both sides of corridor - only create frames for available websites
@@ -362,6 +453,8 @@
                 );
             }
         }
+
+        addSciFiDecorations();
 
         // Lighting
         const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
@@ -408,6 +501,7 @@
             if (Math.abs(newPosition.x) < corridorWidth / 2 - 0.5 &&
                 Math.abs(newPosition.z) < corridorLength / 2 - 0.5) {
                 camera.position.copy(newPosition);
+                checkPortalExit();
             }
         }
 
@@ -420,6 +514,20 @@
             if (Math.abs(newPosition.x) < corridorWidth / 2 - 0.5 &&
                 Math.abs(newPosition.z) < corridorLength / 2 - 0.5) {
                 camera.position.copy(newPosition);
+                checkPortalExit();
+            }
+        }
+
+        function checkPortalExit() {
+            if (portalExitTriggered) return;
+            const horizontalDistance = Math.hypot(
+                camera.position.x - portalExitPosition.x,
+                camera.position.z - portalExitPosition.z
+            );
+
+            if (horizontalDistance <= portalExitRadius) {
+                portalExitTriggered = true;
+                window.location.href = 'index.html';
             }
         }
 
@@ -472,6 +580,21 @@
             currentRotation += rotationDiff * turnSpeed;
             
             camera.rotation.y = currentRotation;
+
+            const time = performance.now() * 0.001;
+            animatedObjects.forEach((item) => {
+                if (item.rotateZ) item.mesh.rotation.z += item.rotateZ;
+                if (item.rotateY) item.mesh.rotation.y += item.rotateY;
+                if (item.baseScale && item.scalePulse) {
+                    const nextScale = item.baseScale + Math.sin(time * item.pulseSpeed + item.pulseOffset) * item.scalePulse;
+                    item.mesh.scale.setScalar(nextScale);
+                }
+                if (item.material && item.baseOpacity) {
+                    item.material.opacity = item.baseOpacity + Math.sin(time * item.pulseSpeed + item.pulseOffset) * 0.12;
+                } else if (item.mesh.material && item.baseOpacity) {
+                    item.mesh.material.opacity = item.baseOpacity + Math.sin(time * item.pulseSpeed + item.pulseOffset) * 0.08;
+                }
+            });
 
             renderer.render(scene, camera);
         }
